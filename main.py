@@ -61,20 +61,36 @@ def tri_fusion(tab,sleep=0.001,l=None,r=None):
         fusion(tab, sleep, l, m, r)
     return None
 
-def tri_cocktail(tab):
+def tri_cocktail(tab,sleep=0.0005):
     echange=True
     while echange:
         echange=False
         for i in range(0,len(tab)-1):
-            draw_tab(0.0005,[i])
+            draw_tab(sleep,[i])
             if tab[i]>tab[i+1]:
                 tab[i],tab[i+1]=tab[i+1],tab[i]
                 echange=True
         for i in range(len(tab)-2,-1,-1):
-            draw_tab(0.0005,[i])
+            draw_tab(sleep,[i])
             if tab[i]>tab[i+1]:
                 tab[i],tab[i+1]=tab[i+1],tab[i]
                 echange=True
+    return None
+
+def tri_radix(tab,sleep=0.005):
+    for i in range(7): #pour aller jusqu'à 100, il faut 7 bits
+        lot_1 = [0,0]
+        for j in range(len(tab)):
+            temp = tab[j]
+            if int(format(temp,'07b')[-i-1]) == 1:
+                lot_1[1] += 1
+            else:
+                for k in range(lot_1[1],lot_1[0],-1):
+                    tab[k] = tab[k-1]
+                tab[lot_1[0]] = temp
+                lot_1[0] += 1
+                lot_1[1] += 1
+            draw_tab(sleep,lot_1)
     return None
         
 def draw_tab(sleep, rouge):
@@ -98,14 +114,13 @@ def verif_tab():
     pygame.draw.rect(screen, (0,255,0), (12*(len(tab)-1), size[1]-tab[(len(tab)-1)]*7, 10, tab[(len(tab)-1)]*7))
     pygame.display.update()
     return None
-        
-      
-        
+
+
 NB_VAL = 100
-        
+
 tab = [i+1 for i in range(NB_VAL)]
 random.shuffle(tab)
-        
+
 size = (NB_VAL*12, NB_VAL*7+10)  # largeur d'une val = 10 (2 entre chaque) // hauteur d'une val = 7
 screen = pygame.display.set_mode(size)
 run = True
@@ -122,9 +137,9 @@ while run:
             
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not triee:
-                # C'est ici qu'on choisit le tri (parmis: bulles, selection, insertion, fusion, cocktail)
+                # C'est ici qu'on choisit le tri (parmis: bulles, selection, insertion, fusion, cocktail, radix)
                 # Pour personnaliser le temps de "pause" entre chaque comparaison, ajoutez le en paramètre (ex: tri_selection(tab,0.01))
-                tri_bulles(tab)
+                tri_radix(tab)
                 draw_tab(0,[])
                 time.sleep(1)
                 verif_tab()
